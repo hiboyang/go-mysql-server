@@ -2181,6 +2181,26 @@ var QueryTests = []QueryTest{
 		Expected: []sql.Row{{int64(2)}, {int64(4)}, {int64(6)}},
 	},
 	{
+		Query:    "SELECT * FROM niltable WHERE i2 = NULL",
+		Expected: []sql.Row{},
+	},
+	{
+		Query:    "SELECT i2 FROM niltable WHERE i2 <=> NULL",
+		Expected: []sql.Row{{nil}, {nil}, {nil}},
+	},
+	{
+		Query:    "SELECT l.i, r.i2 FROM niltable l INNER JOIN niltable r ON l.i2 = r.i2 ORDER BY 1",
+		Expected: []sql.Row{{2, 2}, {4, 4}, {6, 6}},
+	},
+	{
+		Query:    "SELECT l.i, r.i2 FROM niltable l INNER JOIN niltable r ON l.i2 != r.i2 ORDER BY 1, 2",
+		Expected: []sql.Row{{2, 4}, {2, 6}, {4, 2}, {4, 6}, {6, 2}, {6, 4}},
+	},
+	{
+		Query:    "SELECT l.i, r.i2 FROM niltable l INNER JOIN niltable r ON l.i2 <=> r.i2 ORDER BY 1 ASC",
+		Expected: []sql.Row{{1, nil}, {1, nil}, {1, nil}, {2, 2}, {3, nil}, {3, nil}, {3, nil}, {4, 4}, {5, nil}, {5, nil}, {5, nil}, {6, 6}},
+	},
+	{
 		Query:    "select i from datetime_table where date_col = date('2019-12-31T12:00:00')",
 		Expected: []sql.Row{{1}},
 	},
@@ -4133,29 +4153,29 @@ var QueryTests = []QueryTest{
 			{
 				sql.Collation_binary.String(),
 				"binary",
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].ID,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].IsDefault,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].IsCompiled,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].SortLen,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].PadSpace,
+				int64(sql.Collation_binary),
+				sql.Collation_binary.IsDefault(),
+				sql.Collation_binary.IsCompiled(),
+				sql.Collation_binary.SortLength(),
+				sql.Collation_binary.PadAttribute(),
 			},
 			{
 				sql.Collation_utf8_general_ci.String(),
 				"utf8mb3",
-				sql.CollationToMySQLVals[sql.Collation_utf8_general_ci.Name].ID,
-				sql.CollationToMySQLVals[sql.Collation_utf8_general_ci.Name].IsDefault,
-				sql.CollationToMySQLVals[sql.Collation_utf8_general_ci.Name].IsCompiled,
-				sql.CollationToMySQLVals[sql.Collation_utf8_general_ci.Name].SortLen,
-				sql.CollationToMySQLVals[sql.Collation_utf8_general_ci.Name].PadSpace,
+				int64(sql.Collation_utf8_general_ci),
+				sql.Collation_utf8_general_ci.IsDefault(),
+				sql.Collation_utf8_general_ci.IsCompiled(),
+				sql.Collation_utf8_general_ci.SortLength(),
+				sql.Collation_utf8_general_ci.PadAttribute(),
 			},
 			{
 				sql.Collation_utf8mb4_0900_ai_ci.String(),
 				"utf8mb4",
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].ID,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].IsDefault,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].IsCompiled,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].SortLen,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].PadSpace,
+				int64(sql.Collation_utf8mb4_0900_ai_ci),
+				sql.Collation_utf8mb4_0900_ai_ci.IsDefault(),
+				sql.Collation_utf8mb4_0900_ai_ci.IsCompiled(),
+				sql.Collation_utf8mb4_0900_ai_ci.SortLength(),
+				sql.Collation_utf8mb4_0900_ai_ci.PadAttribute(),
 			},
 		},
 	},
@@ -4169,11 +4189,11 @@ var QueryTests = []QueryTest{
 			{
 				sql.Collation_binary.String(),
 				"binary",
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].ID,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].IsDefault,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].IsCompiled,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].SortLen,
-				sql.CollationToMySQLVals[sql.Collation_binary.Name].PadSpace,
+				int64(sql.Collation_binary),
+				sql.Collation_binary.IsDefault(),
+				sql.Collation_binary.IsCompiled(),
+				sql.Collation_binary.SortLength(),
+				sql.Collation_binary.PadAttribute(),
 			},
 		},
 	},
@@ -4187,11 +4207,11 @@ var QueryTests = []QueryTest{
 			{
 				sql.Collation_utf8mb4_0900_ai_ci.String(),
 				"utf8mb4",
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].ID,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].IsDefault,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].IsCompiled,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].SortLen,
-				sql.CollationToMySQLVals[sql.Collation_utf8mb4_0900_ai_ci.Name].PadSpace,
+				int64(sql.Collation_utf8mb4_0900_ai_ci),
+				sql.Collation_utf8mb4_0900_ai_ci.IsDefault(),
+				sql.Collation_utf8mb4_0900_ai_ci.IsCompiled(),
+				sql.Collation_utf8mb4_0900_ai_ci.SortLength(),
+				sql.Collation_utf8mb4_0900_ai_ci.PadAttribute(),
 			},
 		},
 	},
@@ -5987,7 +6007,7 @@ var QueryTests = []QueryTest{
 	},
 	{
 		Query:    "SELECT NULL <=> NULL FROM dual",
-		Expected: []sql.Row{{1}},
+		Expected: []sql.Row{{true}},
 	},
 	{
 		Query:    "SELECT POW(2,3) FROM dual",
@@ -7915,6 +7935,32 @@ var InfoSchemaScripts = []ScriptTest{
 		},
 	},
 	{
+		Name: "information_schema.columns correctly shows numeric precision and scale for a wide variety of types",
+		SetUpScript: []string{
+			"CREATE TABLE `digits` (`c0` tinyint,`c1` tinyint unsigned,`c2` smallint,`c3` smallint unsigned,`c4` mediumint,`c5` mediumint unsigned,`c6` int,`c7` int unsigned,`c8` bigint,`c9` bigint unsigned,`c10` float,`c11` dec(5,2),`st` varchar(100))",
+		},
+		Assertions: []ScriptTestAssertion{
+			{
+				Query: "select column_name, numeric_precision, numeric_scale from information_schema.columns where table_name='digits' order by ordinal_position;",
+				Expected: []sql.Row{
+					{"c0", 3, 0},
+					{"c1", 3, 0},
+					{"c2", 5, 0},
+					{"c3", 5, 0},
+					{"c4", 7, 0},
+					{"c5", 7, 0},
+					{"c6", 10, 0},
+					{"c7", 10, 0},
+					{"c8", 19, 0},
+					{"c9", 20, 0},
+					{"c10", 12, nil},
+					{"c11", 5, 2},
+					{"st", nil, nil},
+				},
+			},
+		},
+	},
+	{
 		Name: "information_schema.routines",
 		SetUpScript: []string{
 			"CREATE PROCEDURE p1() COMMENT 'hi' DETERMINISTIC SELECT 6",
@@ -7960,7 +8006,7 @@ var InfoSchemaScripts = []ScriptTest{
 			{
 				Query: "SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = 'foo'",
 				Expected: []sql.Row{
-					{"def", "foo", "t", "i", uint32(1), nil, "YES", "int", nil, nil, nil, nil, nil, nil, nil, "int", "", "", "select", "", "", nil},
+					{"def", "foo", "t", "i", uint32(1), nil, "YES", "int", nil, nil, int64(10), int64(0), nil, nil, nil, "int", "", "", "select", "", "", nil},
 					{"def", "foo", "v", "", uint32(0), nil, "", nil, nil, nil, nil, nil, nil, "", "", "", "", "", "select", "", "", nil},
 				},
 			},
@@ -8760,20 +8806,20 @@ var ShowTableStatusQueries = []QueryTest{
 		Query: `SHOW TABLE STATUS FROM mydb`,
 		Expected: []sql.Row{
 			{"mytable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
-			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(65540), uint64(196620), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
+			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
 		},
 	},
 	{
 		Query: `SHOW TABLE STATUS LIKE '%table'`,
 		Expected: []sql.Row{
 			{"mytable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
-			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(65540), uint64(196620), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
+			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
 		},
 	},
 	{
 		Query: `SHOW TABLE STATUS FROM mydb LIKE 'othertable'`,
 		Expected: []sql.Row{
-			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(65540), uint64(196620), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
+			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
 		},
 	},
 	{
@@ -8786,13 +8832,13 @@ var ShowTableStatusQueries = []QueryTest{
 		Query: `SHOW TABLE STATUS`,
 		Expected: []sql.Row{
 			{"mytable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
-			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(65540), uint64(196620), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
+			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
 		},
 	},
 	{
 		Query: `SHOW TABLE STATUS FROM mydb LIKE 'othertable'`,
 		Expected: []sql.Row{
-			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(65540), uint64(196620), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
+			{"othertable", "InnoDB", "10", "Fixed", uint64(3), uint64(88), uint64(264), uint64(0), int64(0), int64(0), nil, nil, nil, nil, "utf8mb4_0900_bin", nil, nil, nil},
 		},
 	},
 }

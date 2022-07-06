@@ -541,7 +541,7 @@ func convertShow(ctx *sql.Context, s *sqlparser.Show, query string) (sql.Node, e
 
 		node, err := Parse(ctx, "select routine_schema as `Db`, routine_name as `Name`, routine_type as `Type`,"+
 			"definer as `Definer`, last_altered as `Modified`, created as `Created`, security_type as `Security_type`,"+
-			"routine_comment as `Comment`, character_set_client, collation_connection,"+
+			"routine_comment as `Comment`, CHARACTER_SET_CLIENT as `character_set_client`, COLLATION_CONNECTION as `collation_connection`,"+
 			"database_collation as `Database Collation` from information_schema.routines where routine_type = 'PROCEDURE'")
 		if err != nil {
 			return nil, err
@@ -1789,38 +1789,7 @@ func convertInsert(ctx *sql.Context, i *sqlparser.Insert) (sql.Node, error) {
 		ignore = true
 	}
 
-	columnWithDefaultValues := make(map[int]bool)
-
-	if e, ok := src.(*plan.Values); ok {
-		for i, tuple := range e.ExpressionTuples {
-			var needCols []sql.Expression
-			for j, s := range tuple {
-				if _, ok := s.(*expression.DefaultColumn); ok {
-					columnWithDefaultValues[j] = true
-				} else {
-					needCols = append(needCols, s)
-				}
-			}
-
-			// Only re-assign if found column with default values
-			if len(columnWithDefaultValues) == 0 {
-				break
-			}
-
-			e.ExpressionTuples[i] = needCols
-		}
-	}
-
-	var columns []string
-	if len(columnWithDefaultValues) > 0 {
-		for i, c := range columnsToStrings(i.Columns) {
-			if _, found := columnWithDefaultValues[i]; !found {
-				columns = append(columns, c)
-			}
-		}
-	} else {
-		columns = columnsToStrings(i.Columns)
-	}
+	var columns = columnsToStrings(i.Columns)
 
 	return plan.NewInsertInto(sql.UnresolvedDatabase(i.Table.Qualifier.String()), tableNameToUnresolvedTable(i.Table), src, isReplace, columns, onDupExprs, ignore), nil
 }
