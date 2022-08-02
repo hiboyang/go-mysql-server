@@ -319,7 +319,7 @@ func (a *accumulatorIter) Next(ctx *sql.Context) (r sql.Row, err error) {
 		default:
 		}
 		if err == io.EOF {
-			res := a.updateRowHandler.okResult()
+			res := a.updateRowHandler.okResult() // TODO: This res should support warnings.
 
 			// TODO: The information flow here is pretty gnarly. We
 			// set some session variables based on the result, and
