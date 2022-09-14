@@ -313,7 +313,7 @@ func (h *Handler) doQuery(
 
 	start := time.Now()
 	defer func() {
-		ctx.GetLogger().Debugf("Query finished in %d ms", time.Since(start).Milliseconds())
+		ctx.GetLogger().Debugf("Query finished in %d μs", time.Since(start).Microseconds())
 	}()
 
 	if parsed == nil {
