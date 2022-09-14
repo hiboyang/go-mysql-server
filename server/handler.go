@@ -312,6 +312,9 @@ func (h *Handler) doQuery(
 	defer finish(err)
 
 	start := time.Now()
+	defer func() {
+		ctx.GetLogger().Debugf("Query finished in %d ms", time.Since(start).Milliseconds())
+	}()
 
 	if parsed == nil {
 		parsed, err = parse.Parse(ctx, query)
@@ -553,8 +556,6 @@ func (h *Handler) doQuery(
 	case 1:
 		ctx.GetLogger().Tracef("returning result %v", r)
 	}
-
-	ctx.GetLogger().Debugf("Query finished in %d ms", time.Since(start).Milliseconds())
 
 	// processedAtLeastOneBatch means we already called callback() at least
 	// once, so no need to call it if RowsAffected == 0.
