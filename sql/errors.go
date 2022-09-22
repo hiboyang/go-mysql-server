@@ -581,9 +581,6 @@ var (
 	// ErrColumnNumberDoesNotMatch is returned when the number of columns in result does not match expected number of variables
 	ErrColumnNumberDoesNotMatch = errors.NewKind("The used SELECT statements have a different number of columns")
 
-	// ErrUnsupportedJoinFactorCount is returned for a query with more commutable join tables than we support
-	ErrUnsupportedJoinFactorCount = errors.NewKind("unsupported join factor count: expected fewer than %d tables, found %d")
-
 	// ErrNotMatchingSRID is returned for SRID values not matching
 	ErrNotMatchingSRID = errors.NewKind("The SRID of the geometry is %v, but the SRID of the column is %v. Consider changing the SRID of the geometry or the SRID property of the column.")
 

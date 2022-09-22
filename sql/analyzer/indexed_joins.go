@@ -43,19 +43,6 @@ func constructJoinPlan(ctx *sql.Context, a *Analyzer, n sql.Node, scope *Scope, 
 	return replaceJoinPlans(ctx, a, n, scope, sel)
 }
 
-// validateJoinComplexity prevents joins with 13 or more tables from being analyzed further
-func validateJoinComplexity(ctx *sql.Context, a *Analyzer, n sql.Node, scope *Scope, sel RuleSelector) (sql.Node, transform.TreeIdentity, error) {
-	_, joinComplexityLimit, ok := sql.SystemVariables.GetGlobal("join_complexity_limit")
-	if !ok {
-		return nil, transform.SameTree, sql.ErrUnknownSystemVariable.New("join_complexity_limit")
-	}
-
-	if d := countTableFactors(n); d > int(joinComplexityLimit.(uint64)) {
-		return nil, transform.SameTree, sql.ErrUnsupportedJoinFactorCount.New(joinComplexityLimit, d)
-	}
-	return n, transform.SameTree, nil
-}
-
 func replaceJoinPlans(ctx *sql.Context, a *Analyzer, n sql.Node, scope *Scope, sel RuleSelector) (sql.Node, transform.TreeIdentity, error) {
 	//TODO replan children of crossjoins
 	selector := func(c transform.Context) bool {
@@ -415,14 +402,7 @@ func replanJoin(
 	joinHint := extractJoinHint(node)
 
 	// Collect all tables
-	_, joinComplexityLimit, ok := sql.SystemVariables.GetGlobal("join_complexity_limit")
-	if !ok {
-		return nil, transform.SameTree, sql.ErrUnknownSystemVariable.New("join_complexity_limit")
-	}
-	tableJoinOrder, cnt := newJoinOrderNode(node)
-	if cnt > int(joinComplexityLimit.(uint64)) {
-		return nil, transform.SameTree, sql.ErrUnsupportedJoinFactorCount.New(joinComplexityLimit, cnt)
-	}
+	tableJoinOrder, _ := newJoinOrderNode(node)
 
 	// Find a hinted or cost optimized access order for them
 	ordered := false
