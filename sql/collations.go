@@ -352,7 +352,7 @@ const (
 	Collation_utf8_vietnamese_ci       = Collation_utf8mb3_vietnamese_ci
 	Collation_utf8_general_mysql500_ci = Collation_utf8mb3_general_mysql500_ci
 
-	Collation_Default             = Collation_utf8mb4_0900_bin
+	Collation_Default             = Collation_utf8mb4_0900_ai_ci
 	Collation_Invalid CollationID = 0 // This represents a NULL collation.
 )
 

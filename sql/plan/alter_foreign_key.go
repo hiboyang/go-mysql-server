@@ -15,6 +15,7 @@
 package plan
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -243,8 +244,8 @@ func ResolveForeignKey(ctx *sql.Context, tbl sql.ForeignKeyTable, refTbl sql.For
 	for i := range fkDef.Columns {
 		col := cols[strings.ToLower(fkDef.Columns[i])]
 		parentCol := parentCols[strings.ToLower(fkDef.ParentColumns[i])]
-		if !foreignKeyComparableTypes(ctx, col.Type, parentCol.Type) {
-			return sql.ErrForeignKeyColumnTypeMismatch.New(fkDef.Columns[i], fkDef.ParentColumns[i])
+		if err := validateForeignKeyComparableTypes(ctx, col.Type, parentCol.Type); err != nil {
+			return sql.ErrForeignKeyColumnTypeMismatch.Wrap(err, fkDef.Columns[i], fkDef.ParentColumns[i])
 		}
 		sqlParserType := col.Type.Type()
 		if sqlParserType == sqltypes.Text || sqlParserType == sqltypes.Blob {
@@ -496,8 +497,8 @@ func FindForeignKeyColMapping(
 			return nil, nil, fmt.Errorf("index column `%s` in foreign key `%s` cannot be found",
 				destFKCols[fkIdx], fkName)
 		}
-		if !foreignKeyComparableTypes(ctx, indexTypeMap[destFkCol], expectedType) {
-			return nil, nil, sql.ErrForeignKeyColumnTypeMismatch.New(colName, destFkCol)
+		if err := validateForeignKeyComparableTypes(ctx, indexTypeMap[destFkCol], expectedType); err != nil {
+			return nil, nil, sql.ErrForeignKeyColumnTypeMismatch.Wrap(err, colName, destFkCol)
 		}
 		indexPositions[indexPos] = localRowPos
 	}
@@ -576,7 +577,7 @@ func FindIndexWithPrefix(ctx *sql.Context, tbl sql.IndexAddressableTable, prefix
 
 // foreignKeyComparableTypes returns whether the two given types are able to be used as parent/child columns in a
 // foreign key.
-func foreignKeyComparableTypes(ctx *sql.Context, type1 sql.Type, type2 sql.Type) bool {
+func validateForeignKeyComparableTypes(ctx *sql.Context, type1 sql.Type, type2 sql.Type) error {
 	if !type1.Equals(type2) {
 		// There seems to be a special case where CHAR/VARCHAR/BINARY/VARBINARY can have unequal lengths.
 		// Have not tested every type nor combination, but this seems specific to those 4 types.
@@ -586,16 +587,17 @@ func foreignKeyComparableTypes(ctx *sql.Context, type1 sql.Type, type2 sql.Type)
 				type1String := type1.(sql.StringType)
 				type2String := type2.(sql.StringType)
 				if type1String.Collation() != type2String.Collation() {
-					return false
+					panic(fmt.Errorf("unequal collations (%s != %s)",
+						type1String.Collation().String(), type2String.Collation().String()))
 				}
 			default:
-				return false
+				return errors.New("unequal types")
 			}
 		} else {
-			return false
+			return errors.New("unequal types")
 		}
 	}
-	return true
+	return nil
 }
 
 // TODO: copy of analyzer.exprsAreIndexSubset, need to shift stuff around to eliminate import cycle

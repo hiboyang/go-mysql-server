@@ -2020,7 +2020,7 @@ func getPkOrdinals(ts *sqlparser.TableSpec) []int {
 
 // TableSpecToSchema creates a sql.Schema from a parsed TableSpec
 func TableSpecToSchema(ctx *sql.Context, tableSpec *sqlparser.TableSpec, forceInvalidCollation bool) (sql.PrimaryKeySchema, sql.CollationID, error) {
-	tableCollation := sql.Collation_Default
+	tableCollation := sql.Collation_utf8mb4_0900_ai_ci
 	if forceInvalidCollation {
 		tableCollation = sql.Collation_Invalid
 	} else {
@@ -2054,6 +2054,7 @@ func TableSpecToSchema(ctx *sql.Context, tableSpec *sqlparser.TableSpec, forceIn
 		// Use the table's collation if no character or collation was specified for the table
 		if len(cd.Type.Charset) == 0 && len(cd.Type.Collate) == 0 {
 			cd.Type.Collate = tableCollation.Name()
+			cd.Type.Collate = sql.Collation_utf8mb4_0900_ai_ci.Name()
 		}
 		column, err := columnDefinitionToColumn(ctx, cd, tableSpec.Indexes)
 		if err != nil {

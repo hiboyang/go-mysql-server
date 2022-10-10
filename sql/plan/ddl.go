@@ -147,6 +147,8 @@ func NewCreateTable(db sql.Database, name string, ifn IfNotExistsOption, temp Te
 	if collation == sql.Collation_Invalid {
 		collation = sql.Collation_Default
 	}
+	collation = sql.Collation_utf8mb4_0900_ai_ci
+
 	return &CreateTable{
 		ddlNode:      ddlNode{db},
 		name:         name,
