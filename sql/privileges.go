@@ -27,6 +27,94 @@ type PrivilegedOperationChecker interface {
 	UserHasPrivileges(ctx *Context, operations ...PrivilegedOperation) bool
 }
 
+// PrivilegeSet is a set containing privileges.
+type PrivilegeSet interface {
+	// Has returns whether the given global static privilege(s) exists.
+	Has(privileges ...PrivilegeType) bool
+	// HasPrivileges returns whether this PrivilegeSet has any privileges at any level.
+	HasPrivileges() bool
+	// GlobalCount returns the combined number of global static and global dynamic privileges.
+	GlobalCount() int
+	// StaticCount returns the number of global static privileges, while not including global dynamic privileges.
+	StaticCount() int
+	// Database returns the set of privileges for the given database. Returns an empty set if the database does not exist.
+	Database(dbName string) PrivilegeSetDatabase
+	// GetDatabases returns all databases.
+	GetDatabases() []PrivilegeSetDatabase
+	// Equals returns whether the given set of privileges is equivalent to the calling set.
+	Equals(otherPs PrivilegeSet) bool
+	// ToSlice returns all of the global static privileges contained as a slice. Some operations do not care about sort
+	// order, therefore this is presented as an alternative to skip the unnecessary sort operation.
+	ToSlice() []PrivilegeType
+	// ToSortedSlice returns all of the global static privileges contained as a slice, sorted by their internal ID.
+	ToSortedSlice() []PrivilegeType
+}
+
+// PrivilegeSetDatabase is a set containing database-level privileges.
+type PrivilegeSetDatabase interface {
+	// Name returns the name of the database that this privilege set belongs to.
+	Name() string
+	// Has returns whether the given database privilege(s) exists.
+	Has(privileges ...PrivilegeType) bool
+	// HasPrivileges returns whether this database has either database-level privileges, or privileges on a table or
+	// column contained within this database.
+	HasPrivileges() bool
+	// Count returns the number of database privileges.
+	Count() int
+	// Table returns the set of privileges for the given table. Returns an empty set if the table does not exist.
+	Table(tblName string) PrivilegeSetTable
+	// GetTables returns all tables.
+	GetTables() []PrivilegeSetTable
+	// Equals returns whether the given set of privileges is equivalent to the calling set.
+	Equals(otherPs PrivilegeSetDatabase) bool
+	// ToSlice returns all of the database privileges contained as a slice. Some operations do not care about sort order,
+	// therefore this is presented as an alternative to skip the unnecessary sort operation.
+	ToSlice() []PrivilegeType
+	// ToSortedSlice returns all of the database privileges contained as a slice, sorted by their internal ID.
+	ToSortedSlice() []PrivilegeType
+}
+
+// PrivilegeSetTable is a set containing table-level privileges.
+type PrivilegeSetTable interface {
+	// Name returns the name of the table that this privilege set belongs to.
+	Name() string
+	// Has returns whether the given table privilege(s) exists.
+	Has(privileges ...PrivilegeType) bool
+	// HasPrivileges returns whether this table has either table-level privileges, or privileges on a column contained
+	// within this table.
+	HasPrivileges() bool
+	// Count returns the number of table privileges.
+	Count() int
+	// Column returns the set of privileges for the given column. Returns an empty set if the column does not exist.
+	Column(colName string) PrivilegeSetColumn
+	// GetColumns returns all columns.
+	GetColumns() []PrivilegeSetColumn
+	// Equals returns whether the given set of privileges is equivalent to the calling set.
+	Equals(otherPs PrivilegeSetTable) bool
+	// ToSlice returns all of the table privileges contained as a slice. Some operations do not care about sort order,
+	// therefore this is presented as an alternative to skip the unnecessary sort operation.
+	ToSlice() []PrivilegeType
+	// ToSortedSlice returns all of the table privileges contained as a slice, sorted by their internal ID.
+	ToSortedSlice() []PrivilegeType
+}
+
+// PrivilegeSetColumn is a set containing column privileges.
+type PrivilegeSetColumn interface {
+	// Name returns the name of the column that this privilege set belongs to.
+	Name() string
+	// Has returns whether the given column privilege(s) exists.
+	Has(privileges ...PrivilegeType) bool
+	// Count returns the number of column privileges.
+	Count() int
+	// Equals returns whether the given set of privileges is equivalent to the calling set.
+	Equals(otherPs PrivilegeSetColumn) bool
+	// ToSlice returns all of the column privileges contained as a slice. Some operations do not care about sort order,
+	// therefore this is presented as an alternative to skip the unnecessary sort operation.
+	ToSlice() []PrivilegeType
+	// ToSortedSlice returns all of the column privileges contained as a slice, sorted by their internal ID.
+	ToSortedSlice() []PrivilegeType
+}
+
 // PrivilegeType represents a privilege.
 type PrivilegeType int
 

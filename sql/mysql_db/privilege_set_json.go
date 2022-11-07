@@ -63,9 +63,9 @@ func (ps PrivilegeSet) MarshalJSON() ([]byte, error) {
 	for dbIndex, database := range ps.GetDatabases() {
 		dbPrivs := database.ToSortedSlice()
 		dbm := privilegeSetMarshalerDatabase{
-			Name:       database.name,
+			Name:       database.Name(),
 			Privileges: make([]string, len(dbPrivs)),
-			Tables:     make([]privilegeSetMarshalerTable, len(database.tables)),
+			Tables:     make([]privilegeSetMarshalerTable, len(database.(PrivilegeSetDatabase).tables)),
 		}
 		for i, dbPriv := range dbPrivs {
 			dbm.Privileges[i] = dbPriv.String()
@@ -75,9 +75,9 @@ func (ps PrivilegeSet) MarshalJSON() ([]byte, error) {
 		for tblIndex, table := range database.GetTables() {
 			tblPrivs := table.ToSortedSlice()
 			tbm := privilegeSetMarshalerTable{
-				Name:       table.name,
-				Privileges: make([]string, len(table.privs)),
-				Columns:    make([]privilegeSetMarshalerColumn, len(table.columns)),
+				Name:       table.Name(),
+				Privileges: make([]string, len(table.(PrivilegeSetTable).privs)),
+				Columns:    make([]privilegeSetMarshalerColumn, len(table.(PrivilegeSetTable).columns)),
 			}
 			for i, tblPriv := range tblPrivs {
 				tbm.Privileges[i] = tblPriv.String()
@@ -87,8 +87,8 @@ func (ps PrivilegeSet) MarshalJSON() ([]byte, error) {
 			for colIndex, column := range table.GetColumns() {
 				colPrivs := column.ToSortedSlice()
 				cbm := privilegeSetMarshalerColumn{
-					Name:       column.name,
-					Privileges: make([]string, len(column.privs)),
+					Name:       column.Name(),
+					Privileges: make([]string, len(column.(PrivilegeSetColumn).privs)),
 				}
 				for i, colPriv := range colPrivs {
 					cbm.Privileges[i] = colPriv.String()
